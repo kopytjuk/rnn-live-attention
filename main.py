@@ -66,8 +66,8 @@ def tnr(y_true, y_pred):
 model = Model(inputs=x_tensor, outputs=y_tensor)
 model.compile(optimizer='adam', sample_weight_mode="temporal",
               loss='binary_crossentropy',
-              metrics=['accuracy'])#metrics=['accuracy', tpr, tnr])
-model.fit(X_train, Y_train, batch_size=2, epochs=EPOCHS, validation_data=(X_val, Y_val))  # starts training
+              metrics=['accuracy', tpr, tnr])
+model.fit(X_train, Y_train, batch_size=64, epochs=EPOCHS, validation_data=(X_val, Y_val))  # starts training
 
 
 # print some predictions
