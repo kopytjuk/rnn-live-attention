@@ -25,7 +25,7 @@ print(x_tensor)
 inter_tensor = GRU(5, return_sequences=True)(x_tensor)
 print(inter_tensor)
 #y_tensor = TimeDistributed(Dense(1, activation="sigmoid"))(inter_tensor)
-y_tensor = CustomAttentionLayer(1, "sigmoid", 0, "dot")(inter_tensor)
+y_tensor = CustomAttentionLayer(1, "sigmoid", 5, "dot")(inter_tensor)
 print(y_tensor)
 
 

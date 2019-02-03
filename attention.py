@@ -4,7 +4,7 @@ from keras.layers.core import Permute, Reshape
 
 import tensorflow as tf
 
-class CustomAttentionLayer(RNN):
+class CustomAttentionLayer(Layer):
 
     def __init__(self, output_dim, activation, attention_window, score_fn, **kwargs):
         self.output_dim = output_dim
@@ -15,6 +15,7 @@ class CustomAttentionLayer(RNN):
 
     def build(self, input_shape):
         self.hidden_dim = input_shape[-1]
+        self.num_timesteps = input_shape[-2]
         # Create a trainable weight variable for this layer.
         self.W_c = self.add_weight(name='W_c', 
                                       shape=(self.hidden_dim*2, self.output_dim),
@@ -22,46 +23,59 @@ class CustomAttentionLayer(RNN):
                                       trainable=True)
         super(CustomAttentionLayer, self).build(input_shape)  # Be sure to call this at the end
 
-    def call(self, inputs, states):
+    def call(self, x):
         # x is of shape (B, T, H) # from previous layer
 
-        h_t = inputs[:, -1:, :] # B x 1 x H
-        h_s = inputs[:, :-1, :] # B x (T-1) x H
+        # idea:
+        # 1. pad the beginning of the state tensor to window size in TS dimension
+        # 2. run the routines below to get an output for each timestamp
+        # 3. concatenate the results to final output vector
 
-        print("h_t", h_t)
-        print("h_s", h_s)
+        h = tf.pad(x, [[0, 0], [self.attention_window, 0], [0, 0]])
 
-        #h_t = K.tile(h_t, (1, K.int_shape(h_s)[1], 1))
-        # desired to be B x (T-1) x 1
-        ht_mul_hs = tf.multiply(h_t, h_s)
-        score = K.sum(ht_mul_hs, axis=-1)
+        print("h", h)
 
-        # should be B x (T-1)
-        print("score", score)
+        for i in range(self.attention_window):
+            current_ts = self.attention_window+i
+            h_t = x[:, current_ts, :] 
+            h_t = tf.reshape(h_t, shape=(tf.shape(x)[0], 1, self.hidden_dim)) # B x 1 x H
 
-        # should be B x (T-1)
-        alpha_t = K.softmax(score)
+            h_s = x[:, :self.attention_window+i, :] # B x (T-1) x H
 
-        print("alpha_t", alpha_t)
-
-        alpha_t = tf.reshape(alpha_t, (tf.shape(h_s)[0], tf.shape(h_s)[1], 1))
-
-        alpha_t = tf.tile(alpha_t, (1, 1, self.hidden_dim))
-        hs_mul_alpha_t = tf.multiply(alpha_t, h_s)
-
-        c_t = K.sum(hs_mul_alpha_t, axis=1)
+            print("h_t", h_t)
+            print("h_s", h_s)
         
-        print("c_t", c_t)
+            #h_t = K.tile(h_t, (1, K.int_shape(h_s)[1], 1))
+            # desired to be B x (T-1) x 1
+            ht_mul_hs = tf.multiply(h_t, h_s)
+            score = K.sum(ht_mul_hs, axis=-1)
 
-        h_t = tf.reshape(h_t, (-1, self.hidden_dim))
+            # should be B x (T-1)
+            print("score", score)
 
-        concat_vec = K.concatenate([c_t, h_t], axis=-1)
+            # should be B x (T-1)
+            alpha_t = K.softmax(score)
 
-        print("concat_vec", concat_vec)
+            print("alpha_t", alpha_t)
 
-        out = K.dot(concat_vec, self.W_c)
+            alpha_t = tf.reshape(alpha_t, (tf.shape(h_s)[0], tf.shape(h_s)[1], 1))
 
-        return K.sigmoid(out), [inputs]
+            alpha_t = tf.tile(alpha_t, (1, 1, self.hidden_dim))
+            hs_mul_alpha_t = tf.multiply(alpha_t, h_s)
+
+            c_t = K.sum(hs_mul_alpha_t, axis=1)
+            
+            print("c_t", c_t)
+
+            h_t = tf.reshape(h_t, (-1, self.hidden_dim))
+
+            concat_vec = K.concatenate([c_t, h_t], axis=-1)
+
+            print("concat_vec", concat_vec)
+
+            out = K.dot(concat_vec, self.W_c)
+
+        return K.sigmoid(out)
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0], self.output_dim)
