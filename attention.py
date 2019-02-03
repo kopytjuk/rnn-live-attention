@@ -44,22 +44,14 @@ class CustomAttentionLayer(Layer):
             h_t = tf.reshape(h_t, shape=(tf.shape(x)[0], 1, self.hidden_dim)) # B x 1 x H
 
             h_s = h[:, (current_ts-self.attention_window):current_ts, :] # B x (T-1) x H
-
-            print("h_t", h_t)
-            print("h_s", h_s)
         
             #h_t = K.tile(h_t, (1, K.int_shape(h_s)[1], 1))
             # desired to be B x (T-1) x 1
             ht_mul_hs = tf.multiply(h_t, h_s)
-            score = K.sum(ht_mul_hs, axis=-1)
-
-            # should be B x (T-1)
-            print("score", score)
+            score = K.sum(ht_mul_hs, axis=-1) # should be B x (T-1)
 
             # should be B x (T-1)
             alpha_t = K.softmax(score)
-
-            print("alpha_t", alpha_t)
 
             alpha_t = tf.reshape(alpha_t, (tf.shape(h_s)[0], tf.shape(h_s)[1], 1))
 
@@ -67,14 +59,10 @@ class CustomAttentionLayer(Layer):
             hs_mul_alpha_t = tf.multiply(alpha_t, h_s)
 
             c_t = K.sum(hs_mul_alpha_t, axis=1)
-            
-            print("c_t", c_t)
 
             h_t = tf.reshape(h_t, (-1, self.hidden_dim))
 
             concat_vec = K.concatenate([c_t, h_t], axis=-1)
-
-            print("concat_vec", concat_vec)
 
             out = K.dot(concat_vec, self.W_c)
 
