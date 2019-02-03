@@ -15,7 +15,7 @@ class CustomAttentionLayer(Layer):
 
     def build(self, input_shape):
         self.hidden_dim = input_shape[-1]
-        self.num_timesteps = input_shape[-2]
+        self.sequence_length = input_shape[-2]
         # Create a trainable weight variable for this layer.
         self.W_c = self.add_weight(name='W_c', 
                                       shape=(self.hidden_dim*2, self.output_dim),
@@ -35,12 +35,15 @@ class CustomAttentionLayer(Layer):
 
         print("h", h)
 
-        for i in range(self.attention_window):
+        out_list = list()
+
+        for i in range(self.sequence_length):
+
             current_ts = self.attention_window+i
-            h_t = x[:, current_ts, :] 
+            h_t = h[:, current_ts, :] 
             h_t = tf.reshape(h_t, shape=(tf.shape(x)[0], 1, self.hidden_dim)) # B x 1 x H
 
-            h_s = x[:, :self.attention_window+i, :] # B x (T-1) x H
+            h_s = h[:, (current_ts-self.attention_window):current_ts, :] # B x (T-1) x H
 
             print("h_t", h_t)
             print("h_s", h_s)
@@ -75,7 +78,21 @@ class CustomAttentionLayer(Layer):
 
             out = K.dot(concat_vec, self.W_c)
 
-        return K.sigmoid(out)
+            print("out", out)
+
+            out = K.sigmoid(out)
+
+            out = tf.reshape(out, shape=(-1, 1, self.output_dim))
+
+            out_list.append(out)
+
+        out_all = tf.concat(out_list, axis=1)
+
+        out_all = tf.reshape(out_all, shape=(-1, self.sequence_length, self.output_dim))
+
+        print("out_all", out_all)
+
+        return out_all
 
     def compute_output_shape(self, input_shape):
-        return (input_shape[0], self.output_dim)
+        return (input_shape[0], self.sequence_length ,self.output_dim)
