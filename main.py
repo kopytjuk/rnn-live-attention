@@ -4,7 +4,7 @@ from keras.models import Model
 from keras import backend as K
 import tensorflow as tf
 
-from data import generate_training_data
+from dummydata import generate_training_data
 from attention import CustomAttentionLayer
 
 import numpy as np
