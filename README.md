@@ -1,4 +1,4 @@
-# rnn-live-attention
+# Recurrent Live Attention
 
 Attention mechanism for live predictions working on previous hidden vectors of last RNN/GRU/LSTM layer.
 
