@@ -3,6 +3,9 @@ import tensorflow as tf
 
 
 def tpr(y_true, y_pred):
+
+    T_seq = tf.shape(y_true)[1]
+
     # round to integers
     y_pred_rounded = K.round(y_pred)
     y_true = K.round(y_true)
@@ -21,6 +24,8 @@ def tnr(y_true, y_pred):
 
     y_pred_rounded = y_pred >= 1
     y_true = y_true >= 1
+
+    T_seq = tf.shape(y_true)[1]
 
     y_pred_rounded = K.reshape(y_pred_rounded, shape=(-1, T_seq))
     y_true = K.reshape(y_true, shape=(-1, T_seq))

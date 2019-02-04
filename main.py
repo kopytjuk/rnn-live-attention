@@ -51,7 +51,7 @@ if __name__ == "__main__":
         model = Model(inputs=x_tensor, outputs=y_tensor)
 
     # Define callbacks
-    tb_callback = TensorBoard(log_dir=log_directory, histogram_freq=1)
+    tb_callback = TensorBoard(log_dir=log_directory, histogram_freq=1, write_grads=True)
     es_callback = EarlyStopping(patience=PATIENCE, restore_best_weights=True)
 
     # keras settings
