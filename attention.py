@@ -45,8 +45,13 @@ class CustomAttentionLayer(Layer):
         
             #h_t = K.tile(h_t, (1, K.int_shape(h_s)[1], 1))
             # desired to be B x (T-1) x 1
-            ht_mul_hs = tf.multiply(h_t, h_s) # normal dot product
-            score = K.sum(ht_mul_hs, axis=-1) # should be B x (T-1)
+
+            if self.score_fn == "dot":
+                ht_mul_hs = tf.multiply(h_t, h_s) # normal dot product
+                score = K.sum(ht_mul_hs, axis=-1) # should be B x (T-1)
+            else:
+                ht_mul_hs = tf.multiply(h_t, h_s) # normal dot product
+                score = K.sum(ht_mul_hs, axis=-1) # should be B x (T-1)
 
             # should be B x (T-1)
             alpha_t = K.softmax(score)
