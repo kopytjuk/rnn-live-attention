@@ -69,7 +69,7 @@ class CustomAttentionLayer(Layer):
 
             out = K.dot(concat_vec, self.W_c)
 
-            out = K.sigmoid(out)
+            out = K.tanh(out)
 
             out = tf.reshape(out, shape=(-1, 1, self.output_dim))
 

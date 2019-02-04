@@ -47,7 +47,8 @@ if __name__ == "__main__":
     with tf.device('/cpu:0'):
         x_tensor = Input(shape=(T_seq, 1))
         inter_tensor = GRU(5, return_sequences=True)(x_tensor)
-        y_tensor = CustomAttentionLayer(1, "sigmoid", 5, "dot")(inter_tensor)
+        inter_tensor = CustomAttentionLayer(5, "sigmoid", 5, "dot")(inter_tensor)
+        y_tensor = TimeDistributed(Dense(1, activation="sigmoid"))(inter_tensor)
         model = Model(inputs=x_tensor, outputs=y_tensor)
 
     # Define callbacks
