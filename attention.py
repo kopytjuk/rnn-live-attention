@@ -33,8 +33,6 @@ class CustomAttentionLayer(Layer):
 
         h = tf.pad(x, [[0, 0], [self.attention_window, 0], [0, 0]])
 
-        print("h", h)
-
         out_list = list()
 
         for i in range(self.sequence_length):
@@ -75,8 +73,6 @@ class CustomAttentionLayer(Layer):
         out_all = tf.concat(out_list, axis=1)
 
         out_all = tf.reshape(out_all, shape=(-1, self.sequence_length, self.output_dim))
-
-        print("out_all", out_all)
 
         return out_all
 
