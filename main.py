@@ -16,12 +16,12 @@ from utils import tpr, tnr
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("experiment_dir", required=True, dest="experiment_dir", type=str, help="Directory to save the directory")
+    parser.add_argument("experiment_dir", type=str, help="Directory to save the directory")
     parser.add_argument("-e", "--epochs", dest="epochs", type=int, default=100, help="Max number of epochs to train")
     parser.add_argument("-l", "--length", dest="length", type=int, default=100, help="Sequence length of timeseries")
     parser.add_argument("-p", "--patience", dest="patience", type=int, default=20, help="Number of epochs to continue training after no improvement.")
-
     args = parser.parse_args()
+
     EPOCHS = args.epochs
     PATIENCE = args.patience
     T_seq = args.length
@@ -58,7 +58,8 @@ if __name__ == "__main__":
     model.compile(optimizer='adam', sample_weight_mode="temporal",
                 loss='binary_crossentropy',
                 metrics=['accuracy', tpr, tnr])
-    model.fit(X_train, Y_train, batch_size=64, epochs=EPOCHS, validation_data=(X_val, Y_val))  # starts training
+    model.fit(X_train, Y_train, batch_size=64, epochs=EPOCHS, validation_data=(X_val, Y_val),
+        callbacks=[tb_callback, es_callback])  # starts training
 
     best_model_path = os.path.join(model_directory, "best_model.mdl")
     model.save(best_model_path)
