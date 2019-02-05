@@ -10,9 +10,9 @@ def generate_sample_sequence(max_length=100, action_delay=4, num_triggers=10, se
 
     trigger_positions = randomizer.choice(max_length, size=(num_triggers))
 
-    vals = np.random.choice(np.arange(-1, 1.01, 0.1))
+    val = np.random.choice(np.arange(-1, 1.01, 0.1))
 
-    x_series[trigger_positions] = vals
+    x_series[trigger_positions] = val
 
     trigger_effect_positions = trigger_positions + action_delay
     trigger_effect_positions = trigger_effect_positions[trigger_effect_positions<=max_length]
