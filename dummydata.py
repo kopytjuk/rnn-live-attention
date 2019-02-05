@@ -16,7 +16,7 @@ def generate_sample_sequence(max_length=100, action_delay=4, num_triggers=10, se
 
     trigger_effect_positions = trigger_positions + action_delay
     trigger_effect_positions = trigger_effect_positions[trigger_effect_positions<=max_length]
-    y_series[trigger_effect_positions] = vals
+    y_series[trigger_effect_positions] = val
 
     return x_series, y_series
 
