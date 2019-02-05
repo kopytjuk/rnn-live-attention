@@ -5,12 +5,12 @@ def generate_sample_sequence(max_length=100, action_delay=4, num_triggers=10, se
 
     randomizer = np.random.RandomState(seed=seed)
 
-    x_series = np.zeros(shape=(max_length,), dtype=int)
-    y_series = np.zeros(shape=(max_length,), dtype=int)
+    x_series = np.zeros(shape=(max_length,), dtype=float)
+    y_series = np.zeros(shape=(max_length,), dtype=float)
 
-    trigger_positions = randomizer.choice(max_length, size=(num_triggers))
+    trigger_positions = randomizer.choice(max_length, size=(num_triggers,))
 
-    val = np.random.choice(np.arange(-1, 1.01, 0.1))
+    val = np.random.choice(np.arange(-1, 1.001, 0.01))
 
     x_series[trigger_positions] = val
 
@@ -27,7 +27,7 @@ def generate_training_data(N, max_length=100, seed=42):
     Y = np.zeros((N, max_length, 1))
 
     for i in range(N):
-        x_series, y_series = generate_sample_sequence(max_length=max_length, seed=seed, num_triggers=1)
+        x_series, y_series = generate_sample_sequence(max_length=max_length, num_triggers=1)
         X[i, ...] = x_series.reshape((-1, 1))
         Y[i, ...] = y_series.reshape((-1, 1))
 
@@ -35,7 +35,7 @@ def generate_training_data(N, max_length=100, seed=42):
 
 if __name__ == "__main__":
 
-    x_series, y_series = generate_sample_sequence(max_length=30, seed=41, num_triggers=5)
+    x_series, y_series = generate_sample_sequence(max_length=30, seed=2, num_triggers=1)
 
     print("Input")
     print(x_series)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     print("Training data:")
     print("Input")
-    print(X[10, ...].T)
+    print(X[12, ...].T)
 
     print("Output")
-    print(Y[10, ...].T)
+    print(Y[12, ...].T)
