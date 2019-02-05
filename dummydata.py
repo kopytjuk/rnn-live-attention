@@ -27,7 +27,7 @@ def generate_training_data(N, max_length=100, seed=42):
     Y = np.zeros((N, max_length, 1))
 
     for i in range(N):
-        x_series, y_series = generate_sample_sequence(max_length=max_length, seed=seed, num_triggers=max_length//10)
+        x_series, y_series = generate_sample_sequence(max_length=max_length, seed=seed, num_triggers=1)
         X[i, ...] = x_series.reshape((-1, 1))
         Y[i, ...] = y_series.reshape((-1, 1))
 
