@@ -48,7 +48,7 @@ if __name__ == "__main__":
         x_tensor = Input(shape=(T_seq, 1))
         inter_tensor = GRU(5, return_sequences=True)(x_tensor)
         inter_tensor = CustomAttentionLayer(5, "sigmoid", 5, "dot")(inter_tensor)
-        y_tensor = TimeDistributed(Dense(1, activation="sigmoid"))(inter_tensor)
+        y_tensor = TimeDistributed(Dense(1, activation="tanh"))(inter_tensor)
         model = Model(inputs=x_tensor, outputs=y_tensor)
 
     # Define callbacks
@@ -57,8 +57,8 @@ if __name__ == "__main__":
 
     # keras settings
     model.compile(optimizer='adam', sample_weight_mode="temporal",
-                loss='binary_crossentropy',
-                metrics=['accuracy', tpr, tnr])
+                loss='mse',
+                metrics=['accuracy'])
     model.fit(X_train, Y_train, batch_size=64, epochs=EPOCHS, validation_data=(X_val, Y_val),
         callbacks=[tb_callback, es_callback])  # starts training
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         print(x_sample.T)
 
         print("Predicted")
-        print(np.round(y_predicted.T))
+        print(y_predicted.T)
 
         print("GT")
         print(Y_test[i, ...].T)
